@@ -4,9 +4,9 @@
         <field name="name">clinic.staff.list</field>
         <field name="model">clinic.staff</field>
         <field name="arch" type="xml">
-            <list string="Staff">
-                <field name="id"/>
-                <field name="staff_type" widget="many2one"/>
+            <list string="Staff" default_order="staff_code">
+                <field name="staff_code"/>
+                <field name="staff_type"/>
                 <field name="name"/>
                 <field name="gender"/>
                 <field name="contact_info"/>
@@ -15,10 +15,8 @@
                 <field name="qualification"/>
                 <field name="labor_type" string="Loại lao động"/>
                 <field name="status"/>
-                <button name="action_list_check_in_out" type="object" string="Chấm công" icon="fa-clock-o"
-                        class="btn-primary"/>
-                <button name="action_list_open_performance_form" type="object" string="Đánh giá" icon="fa-star"
-                        class="btn-success"/>
+                <button name="action_list_check_in_out" type="object" string="Chấm công" icon="fa-clock-o" class="btn-primary"/>
+                <button name="action_list_open_performance_form" type="object" string="Đánh giá" icon="fa-star" class="btn-success"/>
             </list>
         </field>
     </record>
@@ -28,7 +26,8 @@
         <field name="name">clinic.staff.type.list</field>
         <field name="model">clinic.staff.type</field>
         <field name="arch" type="xml">
-            <list string="Staff Type">
+            <list string="Staff Type" default_order="type_code">
+                <field name="type_code"/>
                 <field name="name"/>
             </list>
         </field>
@@ -42,19 +41,22 @@
             <form string="Staff Form">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_manual_check_in_out" type="object" string="Chấm công"
-                                class="oe_stat_button" icon="fa-clock-o"/>
-                        <button name="action_open_performance_form" type="object" string="Đánh giá hiệu suất"
-                                class="oe_stat_button" icon="fa-star"/>
+                        <button name="action_manual_check_in_out" type="object" string="Chấm công" class="oe_stat_button" icon="fa-clock-o"/>
+                        <button name="action_open_performance_form" type="object" string="Đánh giá hiệu suất" class="oe_stat_button" icon="fa-star"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="staff_code" readonly="1" placeholder="Mã nhân sự"/>
+                        </h1>
                     </div>
                     <notebook>
                         <page string="Thông tin chi tiết">
                             <group>
-                                <field name="staff_type" widget="many2one"/>
-                                <field name="name"/>
+                                <field name="staff_type" placeholder="Chức vụ"/>
+                                <field name="name" placeholder="Họ và tên"/>
                                 <field name="date_of_birth"/>
                                 <field name="gender"/>
-                                <field name="contact_info"/>
+                                <field name="contact_info" placeholder="Thông tin liên lạc"/>
                                 <field name="address"/>
                                 <field name="license_number"/>
                                 <field name="department"/>
@@ -102,8 +104,13 @@
         <field name="arch" type="xml">
             <form string="Staff Type Form">
                 <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="type_code" readonly="1" placeholder="Mã chức vụ"/>
+                        </h1>
+                    </div>
                     <group>
-                        <field name="name"/>
+                        <field name="name" placeholder="Tên chức vụ"/>
                     </group>
                 </sheet>
             </form>

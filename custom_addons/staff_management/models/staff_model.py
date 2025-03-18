@@ -9,12 +9,27 @@ class StaffType(models.Model):
 
     name = fields.Char(string="Chức vụ", required=True,
                        help="Nhập chức vụ y tế, ví dụ: Bác sĩ Hạng 1, Y tá Hạng 2, v.v.")
+    type_code = fields.Char(string="Mã chức vụ", required=True, copy=False, readonly=True,
+                            default=lambda self: self.env['ir.sequence'].next_by_code('staff.type.code') or 'ST0001')
+
+    _sql_constraints = [
+        ('unique_type_code', 'unique(type_code)', 'Mã chức vụ phải là duy nhất!')
+    ]
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('type_code'):
+            vals['type_code'] = self.env['ir.sequence'].next_by_code('staff.type.code') or 'ST0001'
+        return super(StaffType, self).create(vals)
 
 
 class Staff(models.Model):
     _name = 'clinic.staff'
     _description = 'Staff Information'
 
+    staff_code = fields.Char(string="Mã nhân sự", required=True, copy=False, readonly=True,
+                             default=lambda self: self.env['ir.sequence'].next_by_code('staff.code') or 'NV0001')
+    staff_id = fields.Many2one('res.users', string='Tài khoản người dùng', ondelete='restrict')
     staff_type = fields.Many2one('clinic.staff.type', string='Chức vụ')
     name = fields.Char(string='Họ và Tên', required=True)
     contact_info = fields.Char(string='Thông tin liên lạc')
@@ -41,14 +56,26 @@ class Staff(models.Model):
         ('full_time', 'Toàn thời gian'),
         ('part_time', 'Bán thời gian')
     ], string='Loại Lao động', required=True, default='full_time')
-
-    # Thêm các trường computed để hiển thị thông tin từ clinic.staff.salary
     total_salary = fields.Float(string='Tổng lương', compute='_compute_salary_fields', store=False)
     net_salary = fields.Float(string='Thực nhận', compute='_compute_salary_fields', store=False)
     salary_status = fields.Selection([
         ('not_created', 'Chưa lập phiếu'),
         ('created', 'Đã lập phiếu')
     ], string='Trạng thái', compute='_compute_salary_fields', store=False)
+
+    _sql_constraints = [
+        ('unique_staff_code', 'unique(staff_code)', 'Mã nhân sự phải là duy nhất!'),
+        ('unique_license_number', 'unique(license_number)', 'Số giấy phép hành nghề phải là duy nhất!')
+    ]
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('staff_code'):
+            vals['staff_code'] = self.env['ir.sequence'].next_by_code('staff.code') or 'NV0001'
+        return super(Staff, self).create(vals)
+
+    # Các hàm khác giữ nguyên...
+
 
     def _compute_salary_fields(self):
         for record in self:
@@ -176,7 +203,7 @@ class StaffAttendance(models.Model):
     _name = 'clinic.staff.attendance'
     _description = 'Staff Attendance'
 
-    staff_id = fields.Many2one('clinic.staff', string='Nhân viên', required=True, ondelete='cascade')
+    staff_id = fields.Many2one('clinic.staff', string='Mã nhân viên', required=True, ondelete='cascade')
     date = fields.Date(string='Ngày', default=fields.Date.today, required=True)
     check_in = fields.Datetime(string='Giờ vào')
     check_out = fields.Datetime(string='Giờ ra')

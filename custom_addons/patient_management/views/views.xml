@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <!-- Sequence cho mã bệnh nhân -->
+    <data noupdate="1">
+        <record id="seq_clinic_patient" model="ir.sequence">
+            <field name="name">Mã bệnh nhân</field>
+            <field name="code">clinic.patient.sequence</field>
+            <field name="prefix">BN</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
     <!-- List View cho clinic.patient -->
     <record id="view_clinic_patient_list" model="ir.ui.view">
         <field name="name">clinic.patient.list</field>
         <field name="model">clinic.patient</field>
         <field name="arch" type="xml">
             <list>
+                <field name="patient_code"/>
                 <field name="name"/>
                 <field name="gender"/>
                 <field name="phone"/>
@@ -22,33 +34,64 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_add_insurance" type="object" string="Thêm bảo hiểm y tế"
+                    <button name="action_treated" 
+                            string="Đã điều trị" 
+                            type="object" 
+                            class="oe_highlight"
+                            invisible="state != 'under_treatment'"/>
+                    <button name="action_deceased" 
+                            string="Tử vong" 
+                            type="object"
+                            invisible="state == 'deceased'"
+                            confirm="Bạn có chắc chắn muốn đánh dấu bệnh nhân đã tử vong?"/>
+                    <button name="action_add_insurance" 
+                            type="object" 
+                            string="Thêm BHYT mới"
                             class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="under_treatment,treated,deceased"/>
                 </header>
                 <sheet>
-                    <group name="personal_info" string="Thông tin cá nhân">
-                        <field name="name"/>
-                        <field name="date_of_birth"/>
-                        <field name="age"/>
-                        <field name="gender"/>
-                        <field name="phone"/>
-                        <field name="address"/>
-                        <field name="patient_type"/>
-                        <field name="state"/>
-                        <field name="last_activity_date" invisible="1"/>
-                        <field name="note"/>
-                    </group>
-                    <group name="insurance_info" string="Thông tin bảo hiểm">
-                        <field name="insurance_number" readonly="1"/>
-                        <field name="initial_facility" readonly="1"/>
-                        <field name="tier" readonly="1"/>
-                        <field name="expiry_date" readonly="1"/>
-                        <field name="has_valid_insurance" readonly="1"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="patient_code" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="personal_info" string="Thông tin cá nhân">
+                            <field name="name"/>
+                            <field name="date_of_birth"/>
+                            <field name="age"/>
+                            <field name="gender"/>
+                            <field name="phone"/>
+                            <field name="address"/>
+                            <field name="patient_type"/>
+                            <field name="room_id" 
+                                   invisible="patient_type == 'outpatient'"
+                                   options="{'no_create': True}"/>
+                        </group>
                     </group>
                 </sheet>
             </form>
         </field>
     </record>
+
+    <!-- Thêm mã bệnh nhân vào list view -->
+    <record id="view_clinic_patient_list" model="ir.ui.view">
+        <field name="name">clinic.patient.list</field>
+        <field name="model">clinic.patient</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="patient_code"/>
+                <field name="name"/>
+                <field name="date_of_birth"/>
+                <field name="age"/>
+                <field name="gender"/>
+                <field name="patient_type"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
     <!-- Action và Menu -->
     <record id="action_clinic_patient" model="ir.actions.act_window">
         <field name="name">Quản lý bệnh nhân</field>
